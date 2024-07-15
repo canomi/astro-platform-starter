@@ -2,60 +2,60 @@
 import Layout from '../layouts/Layout.astro';
 import ContextAlert from '../components/ContextAlert.astro';
 import Markdown from '../components/Markdown.astro';
+import { cacheHeaders, randomInt } from '../utils';
 
-const travelGuide = `
-Ha Giang, located in northern Vietnam, offers a mesmerizing adventure known as the Ha Giang Loop. This scenic route winds through rugged landscapes, towering mountains, and picturesque valleys, providing an unforgettable experience for travelers seeking authenticity and natural beauty.
+export const prerender = false;
 
-### Planning Your Ha Giang Loop Adventure
+const tags = ['/revalidation', 'cats-related', 'all-pets-related'];
+const headers = cacheHeaders(365, tags);
 
-#### Best Time to Visit
+Object.entries(headers).map(([k, v]) => {
+    Astro.response.headers.set(k, v);
+});
 
-[Ha Giang](https://en.wikipedia.org/wiki/Ha_Giang) is best explored from October to April when the weather is cool and dry, offering clear views of the breathtaking scenery.
+const explainer = `
+This is a server-rendered page, last created at \`${new Date().toUTCString()}\` with a few extra response headers:
 
-#### Getting There
+~~~js
+${JSON.stringify(headers, null, 2)}
+~~~
 
-For travelers arriving from Hanoi, the journey to Ha Giang typically takes about 6-7 hours by bus or private car. [Ha Giang bus tickets](https://vexehagiang.com) can be booked online for convenience.
+Meaning: **for browsers,** this is a non-cacheable page. At the **CDN level,** it *is* cacheable for up to a year (and Netlify also automatically busts the cache on new deployments, by default).
 
-#### Accommodation Options
+But there's something more: the \`Cache-Tag\` header, in tandem with the [purge API](https://docs.netlify.com/platform/caching/#on-demand-invalidation), allows a developer to invalidate at will any
+pieces of content (pages, JSON responses, or whatnot) based on the tags associated with them. Tags are completely up to you to decide on, and allow for very powerful patterns.
 
-From cozy homestays in traditional Hmong villages to comfortable hotels in Ha Giang City, there are various [accommodation options](https://hagiangvisiontour.com/en/accommodation) to suit every traveler's preference and budget.
+In real-world applications, you may want to use [stale-while-revalidate](https://docs.netlify.com/platform/caching/#stale-while-revalidate-directive) as well, so that end-users don't experience 
+a performance hit as pages are being rebuilt.
 
-### Exploring the Ha Giang Loop
-
-#### Day 1: Ha Giang City to Quan Ba
-
-Start your journey in Ha Giang City and head towards Quan Ba, known for its twin mountains and the enchanting Quan Ba Heaven Gate.
-
-#### Day 2: Quan Ba to Yen Minh and Dong Van
-
-Continue through Yen Minh to Dong Van, passing by stunning landscapes and cultural landmarks such as the Dong Van Old Quarter.
-
-#### Day 3: Dong Van to Meo Vac
-
-Travel from Dong Van to Meo Vac, where you can visit the bustling Meo Vac Market and interact with local ethnic communities.
-
-#### Day 4: Meo Vac to Ha Giang City
-
-Return to Ha Giang City, taking in the final views of the majestic scenery along the way.
-
-### Additional Tips
-
-- **Motorbike Rental**: Explore the Ha Giang Loop at your own pace with [motorbike rental services](https://thuexehagiang.com/en/motorbike-rental), ideal for adventurous travelers.
-- **Group Tours**: Join a guided [Ha Giang Loop group tour](https://hagiangvisiontour.com) to learn about the region's history and culture from knowledgeable local guides.
-- **Custom Itineraries**: Create a personalized itinerary with [Vision Travel Agent](https://visiontravelagent.com), offering tailored experiences for individuals and groups.
-
-### Conclusion
-
-The Ha Giang Loop promises an exhilarating adventure through some of Vietnam's most awe-inspiring landscapes. Whether you're a solo traveler seeking solitude or a group looking for cultural immersion, Ha Giang offers an experience that will leave a lasting impression.
-
+Use the button below to invlidate a random tag out of this page's tags, then refresh the page.
 `;
 
-<Layout title="Ultimate Guide to Ha Giang Loop Tour">
-    <ContextAlert class="mb-4" />
-    <h1 class="mb-10">Ultimate Travel Guide for Ha Giang Loop Tour</h1>
-    <Markdown content={travelGuide} class="text-lg mb-10" />
-    <p class="mb-8">
-        Ready to embark on your Ha Giang adventure? Book your Ha Giang Loop Group Tour today!
-        <a href="https://hagiangvisiontour.com" class="btn btn-lg btn-primary sm:btn-wide">Book Now</a>
-    </p>
+const exampleTag = tags[randomInt(0, tags.length - 1)];
+---
+
+<Layout title="Guide">
+    <h1 class="mb-10">Revalidating Server Content</h1>
+    <Markdown content={explainer} class="mb-10" />
+    <button class="revalidate-button btn btn-primary" data-tag={exampleTag}>Invalidate tag: {exampleTag}</button>
+    <button class="btn btn-primary" onclick="location.reload()">Reload page</button>
 </Layout>
+
+<script>
+    function revalidate(tag: string) {
+        fetch('/api/revalidate', {
+            method: 'POST',
+            body: JSON.stringify({ tags: [tag] }),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        });
+        alert(`Invalidated tag: ${tag}`);
+    }
+
+    const revalidateButton = document.querySelectorAll('button.revalidate-button')[0];
+    revalidateButton.addEventListener('click', (e) => {
+        const tag = (e.target as HTMLButtonElement).getAttribute('data-tag');
+        revalidate(tag);
+    });
+</script>
