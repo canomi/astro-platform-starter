@@ -6,12 +6,6 @@ import { cacheHeaders, randomInt } from '../utils';
 
 export const prerender = false;
 
-const tags = ['/revalidation', 'cats-related', 'all-pets-related'];
-const headers = cacheHeaders(365, tags);
-
-Object.entries(headers).map(([k, v]) => {
-    Astro.response.headers.set(k, v);
-});
 
 const travelGuide = `
 Ha Giang, located in northern Vietnam, offers a mesmerizing adventure known as the Ha Giang Loop. This scenic route winds through rugged landscapes, towering mountains, and picturesque valleys, providing an unforgettable experience for travelers seeking authenticity and natural beauty.
@@ -59,7 +53,6 @@ Return to Ha Giang City, taking in the final views of the majestic scenery along
 The Ha Giang Loop promises an exhilarating adventure through some of Vietnam's most awe-inspiring landscapes. Whether you're a solo traveler seeking solitude or a group looking for cultural immersion, Ha Giang offers an experience that will leave a lasting impression.
 `;
 
-const exampleTag = tags[randomInt(0, tags.length - 1)];
 ---
 
 <Layout title="Ultimate Guide to Ha Giang Loop Tour">
