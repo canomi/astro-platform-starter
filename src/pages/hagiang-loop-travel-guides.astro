@@ -28,7 +28,7 @@ For travelers arriving from Hanoi, the journey to Ha Giang typically takes about
 
 #### Accommodation Options
 
-From cozy homestays in traditional Hmong villages to comfortable hotels in Ha Giang City, there are various [accommodation options](https://hagiangvisiontour.com/en/accommodation) to suit every traveler's preference and budget.
+From cozy homestays in traditional Hmong villages to comfortable hotels in Ha Giang City, there are various [accommodation options](https://hagiangvisiontour.com/) to suit every traveler's preference and budget.
 
 ### Exploring the Ha Giang Loop
 
@@ -50,7 +50,7 @@ Return to Ha Giang City, taking in the final views of the majestic scenery along
 
 ### Additional Tips
 
-- **Motorbike Rental**: Explore the Ha Giang Loop at your own pace with [motorbike rental services](https://thuexehagiang.com/en/motorbike-rental), ideal for adventurous travelers.
+- **Motorbike Rental**: Explore the Ha Giang Loop at your own pace with [motorbike rental services](https://thuexehagiang.com/en/), ideal for adventurous travelers.
 - **Group Tours**: Join a guided [Ha Giang Loop group tour](https://hagiangvisiontour.com) to learn about the region's history and culture from knowledgeable local guides.
 - **Custom Itineraries**: Create a personalized itinerary with [Vision Travel Agent](https://visiontravelagent.com), offering tailored experiences for individuals and groups.
 
@@ -72,21 +72,4 @@ const exampleTag = tags[randomInt(0, tags.length - 1)];
     </p>
 </Layout>
 
-<script>
-    function revalidate(tag: string) {
-        fetch('/api/revalidate', {
-            method: 'POST',
-            body: JSON.stringify({ tags: [tag] }),
-            headers: {
-                'Content-Type': 'application/json'
-            }
-        });
-        alert(`Invalidated tag: ${tag}`);
-    }
 
-    const revalidateButton = document.querySelectorAll('button.revalidate-button')[0];
-    revalidateButton.addEventListener('click', (e) => {
-        const tag = (e.target as HTMLButtonElement).getAttribute('data-tag');
-        revalidate(tag);
-    });
-</script>
